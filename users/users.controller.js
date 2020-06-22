@@ -10,7 +10,10 @@ router.get('/current', getCurrent);
 router.get('/:id', getById);
 router.put('/:id', update);
 router.delete('/:id', _delete);
-
+//app route
+router.post('/addLike', addLike);
+router.post('/addToFavorites', addToFavorites)
+router.post('/findRecipe', findRecipe)
 module.exports = router;
 
 function authenticate(req, res, next) {
@@ -53,4 +56,21 @@ function _delete(req, res, next) {
     userService.delete(req.params.id)
         .then(() => res.json({}))
         .catch(err => next(err));
+}
+function addLike(req, res, next) {
+    userService.addLike(req.body)
+    .then(() => res.json({}))
+    .catch(err => next(err));
+}
+
+function addToFavorites(req, res, next) {
+    userService.addToFavorites(req.body)
+    .then(() => res.json({}))
+    .catch(err => next(err));
+}
+
+function findRecipe(req, res, next) {
+    userService.findRecipe(req.body)
+    .then(recipes => res.json(recipes))
+    .catch(err => next(err));
 }
