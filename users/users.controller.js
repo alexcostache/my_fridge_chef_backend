@@ -47,6 +47,7 @@ function getById(req, res, next) {
 }
 
 function update(req, res, next) {
+    delete req.body.__v;  // prevent version overwrite
     userService.update(req.params.id, req.body)
         .then(() => res.json({}))
         .catch(err => next(err));
