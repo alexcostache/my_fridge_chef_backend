@@ -16,7 +16,7 @@ module.exports = {
     update,
     addLike,
     findRecipe,
-    addToFavorites,
+    getAllLikes,
     delete: _delete
 };
 
@@ -84,17 +84,23 @@ async function _delete(id) {
 }
 
 async function addLike(data) {
-
+    var likeStatus
     if (await Like.findOne({ username: data.username, recipe: data.recipe })) {
-        throw 'Username "' + data.username + '" already liked' + data.recipe + "recipe";
-    }
-    const like = new Like(data);
-    console.log(" ")
-    console.log(`user.service-- user: ${data.username} liked recipe ${data.recipe.name}`);
-
-    // save user
-    await like.save();
+        await Like.remove({ username: data.username, recipe: data.recipe });
+        likeStatus =  {"status":"false"};
+         
+    }else{
+        const like = new Like(data);
+        console.log(" ")
+        console.log(`user.service-- user: ${data.username} liked recipe ${data.recipe.name}`);
     
+        // save user
+        await like.save();
+    
+        likeStatus = {"status":"true"};
+    }
+   
+    return likeStatus
 }
 
 async function findRecipe(data){
@@ -149,28 +155,24 @@ async function findRecipe(data){
 
 }
 
+async function getAllLikes() {
+    var likes =  await Like.find();
+    var likedRecipes = [];
+    var counts = {};
+    var likesResult = [];
+    for (let i = 0; i < likes.length; i++) {
+        likedRecipes.push(likes[i].recipe)
+    }
 
-async function addToFavorites(id, userParam, data) {
+    likedRecipes.forEach(function(x) {counts[JSON.stringify(x)] = (counts[JSON.stringify(x)] || 0)+1;});
 
-    console.log(data);
+    for (let key in counts) {
+        likesResult.push({"recipe":JSON.parse(key), "likes": counts[key]})
+        
+    }
+
     
-
-    // const user = await User.findById(id);
-
-    // // validate
-    // if (!user) throw 'User not found';
-    // if (user.username !== userParam.username && await User.findOne({ username: userParam.username })) {
-    //     throw 'Username "' + userParam.username + '" is already taken';
-    // }
-
-    // // hash password if it was entered
-    // if (userParam.password) {
-    //     userParam.hash = bcrypt.hashSync(userParam.password, 10);
-    // }
-
-    // // copy userParam properties to user
-    // Object.assign(user, userParam);
-
-    // await user.save();
-
+    //  return sorted 
+    return likesResult.sort((a, b) => (a.likes < b.likes) ? 1 : -1);
 }
+

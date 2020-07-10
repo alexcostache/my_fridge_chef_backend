@@ -4,6 +4,7 @@ const userService = require('./user.service');
 
 // routes
 router.post('/authenticate', authenticate);
+router.get('/tranding', getAllLikes);
 router.post('/register', register);
 router.get('/', getAll);
 router.get('/current', getCurrent);
@@ -12,8 +13,8 @@ router.put('/:id', update);
 router.delete('/:id', _delete);
 //app route
 router.post('/addLike', addLike);
-router.post('/addToFavorites', addToFavorites)
-router.post('/findRecipe', findRecipe)
+router.post('/addToFavorites', addToFavorites);
+router.post('/findRecipe', findRecipe);
 module.exports = router;
 
 function authenticate(req, res, next) {
@@ -60,7 +61,7 @@ function _delete(req, res, next) {
 }
 function addLike(req, res, next) {
     userService.addLike(req.body)
-    .then(() => res.json({}))
+    .then(like => res.json(like))
     .catch(err => next(err));
 }
 
@@ -74,4 +75,10 @@ function findRecipe(req, res, next) {
     userService.findRecipe(req.body)
     .then(recipes => res.json(recipes))
     .catch(err => next(err));
+}
+
+function getAllLikes(req, res, next) {
+    userService.getAllLikes()
+        .then(likes => res.json(likes))
+        .catch(err => next(err));
 }
