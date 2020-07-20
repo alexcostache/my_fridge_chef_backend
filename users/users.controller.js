@@ -5,6 +5,7 @@ const userService = require('./user.service');
 // routes
 router.post('/authenticate', authenticate);
 router.get('/tranding', getAllLikes);
+router.get('/recomandations', getRecomandations);
 router.post('/register', register);
 router.get('/', getAll);
 router.get('/current', getCurrent);
@@ -80,5 +81,11 @@ function findRecipe(req, res, next) {
 function getAllLikes(req, res, next) {
     userService.getAllLikes()
         .then(likes => res.json(likes))
+        .catch(err => next(err));
+}
+
+function getRecomandations(req, res, next) {
+    userService.getRecomandations()
+        .then(recipes => res.json(recipes))
         .catch(err => next(err));
 }

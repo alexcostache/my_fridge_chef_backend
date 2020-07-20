@@ -17,6 +17,7 @@ module.exports = {
     addLike,
     findRecipe,
     getAllLikes,
+    getRecomandations,
     delete: _delete
 };
 
@@ -176,3 +177,40 @@ async function getAllLikes() {
     return likesResult.sort((a, b) => (a.likes < b.likes) ? 1 : -1);
 }
 
+async function getRecomandations(){
+      var recipes = [];
+    console.log("get recomandations");
+      await axios({
+          "method":"GET",
+          "url":"https://yummly2.p.rapidapi.com/feeds/list?tag=list.recipe.popular&limit=5&start=0",
+          "headers":{
+          "content-type":"application/json",
+          "x-rapidapi-host":"yummly2.p.rapidapi.com",
+          "x-rapidapi-key":"dLmz0VpeZomshQhaJzHOoD1VCO6bp1y16Esjsn4xkEIGRbwwlO"}
+          })
+          .then((res)=>{
+              for (let i = 0; i < res.data.feed.length; i++) {
+                  var _result =  res.data.feed[i];
+                  var recipe = {
+                      name : _result.display.displayName,
+                      images : _result.display.images,
+                      preparationSteps : _result.content.preparationSteps,
+                      ingredientLines : _result.content.ingredientLines,
+                      nutritionEstimates : _result.content.nutrition.nutritionEstimates,
+                      technique : _result.content.tags.technique,
+                      dish : _result.content.tags.dish,
+                      course: _result.content.tags.course,
+                      contentOwner : "Yummly.com"
+                  }
+                  recipes.push(recipe)
+              }
+              console.log("response -- recomandations: ", recipes.length ," recipe(s)");
+              // toDO: increase searcher counter on DB 
+          })
+          .catch((error)=>{
+            console.log(error)
+          })
+  
+      return JSON.stringify(recipes);
+  
+  }
