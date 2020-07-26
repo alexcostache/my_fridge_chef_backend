@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const db = require('config/db/db');
 const User = db.User;
 const Like = db.Like;
+const Search = db.Search;
 
 const axios = require("axios");
 const { response } = require('express');
@@ -127,30 +128,47 @@ async function findRecipe(data){
         }
         })
         .then((res)=>{
-            
             for (let i = 0; i < res.data.feed.length; i++) {
                 var _result =  res.data.feed[i];
+                // data validation 
+                if (_result.display.displayName == null) {name = "Recipe name not available"}else{name = _result.display.displayName}
+                if (_result.display.images == null) {images = ["No Images"]} else {images = _result.display.images}
+                if (_result.content.description == null) {description = "Description not available for this recipe." } else {description = _result.content.description.text}
+                if (_result.content.preparationSteps == null) {preparationSteps = ["Preparation Steps not available for this recipe."]}else{preparationSteps = _result.content.preparationSteps}
+                if (_result.content.ingredientLines == null) {ingredientLines = "Not available"}else{ ingredientLines = _result.content.ingredientLines}
+                if (_result.content.nutrition.nutritionEstimates == null) {nutritionEstimates}else{nutritionEstimates = _result.content.nutrition.nutritionEstimates}
+                if (_result.content.tags.technique == null) {technique = [{"display-name":"Technique not available"}]}else{technique = _result.content.tags.technique}
+                if (_result.content.tags.nutrition == null) {nutrition = [{"display-name":"Nutrition not available"}]}else{nutrition = _result.content.tags.nutrition}
+                if (_result.content.tags.dish == null) {dish = [{"display-name":"Dish not available"}]}else{dish = _result.content.tags.dish}
+                if (_result.content.tags.course == null) {course = [{"display-name":"Course not available"}]}else{course = _result.content.tags.course}
+                if (_result.content.details.totalTime == null) {totalTime = "Estimated time not available"}else{totalTime = _result.content.details.totalTime}
+
                 var recipe = {
-                    name : _result.display.displayName,
-                    images : _result.display.images,
-                    description : _result.content.description.text.split("The recipe is a Yummly original created by")[0],
-                    preparationSteps : _result.content.preparationSteps,
-                    ingredientLines : _result.content.ingredientLines,
-                    nutritionEstimates : _result.content.nutrition.nutritionEstimates,
-                    technique : _result.content.tags.technique,
-                    dish : _result.content.tags.dish,
-                    course: _result.content.tags.course,
+                    name : name,
+                    images : images,
+                    description : description.split("The recipe is a Yummly original created by")[0],
+                    preparationSteps : preparationSteps,
+                    ingredientLines : ingredientLines,
+                    nutritionEstimates : nutritionEstimates,
+                    technique : technique,
+                    nutrition : nutrition,
+                    dish : dish,
+                    course: course,
+                    totalTime:totalTime,
                     contentOwner : "Yummly.com"
                 }
                 recipes.push(recipe)
             }
             
             console.log("response -- found: ", recipes.length ," recipe(s)");
-            // toDO: increase searcher counter on DB 
         })
         .catch((error)=>{
           console.log(error)
         })
+    
+    // save search on db 
+    const search = new Search({"searchArray" : data.ingredientsQ});
+    await search.save()
 
     return JSON.stringify(recipes);
 

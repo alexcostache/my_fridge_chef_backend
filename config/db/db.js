@@ -10,5 +10,7 @@ mongoose.Promise = global.Promise;
 
 module.exports = {
     User: require('../../users/user.model'),
-    Like: require('../../users/like.model')
+    Like: require('../../users/like.model'),
+    Search: require('../../users/search.model'),
+
 };
