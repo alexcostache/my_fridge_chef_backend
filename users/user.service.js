@@ -1,4 +1,5 @@
-﻿const config = require('config.json');
+﻿// user service 
+const config = require('config.json');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const db = require('config/db/db');
@@ -25,6 +26,7 @@ module.exports = {
     delete: _delete
 };
 
+// Function to authenticate users 
 async function authenticate({ username, password }) {
     const user = await User.findOne({ username });
     if (user && bcrypt.compareSync(password, user.hash)) {
@@ -37,14 +39,16 @@ async function authenticate({ username, password }) {
     }
 }
 
+// Function to get all users
 async function getAll() {
     return await User.find().select('-hash');
 }
-
+// Function to get user by id
 async function getById(id) {
     return await User.findById(id).select('-hash');
 }
 
+// Function to create a new user
 async function create(userParam) {
     // validate
     if (await User.findOne({ username: userParam.username })) {
@@ -62,6 +66,7 @@ async function create(userParam) {
     await user.save();
 }
 
+// Function to update user
 async function update(id, userParam) {
     const user = await User.findById(id);
 
@@ -83,11 +88,12 @@ async function update(id, userParam) {
 }
 
 
-//delete user ?
+// Function to delete user
 async function _delete(id) {
     await User.findByIdAndRemove(id);
 }
 
+// Function to save likes data on database
 async function addLike(data) {
     var likeStatus
     if (await Like.findOne({ username: data.username, recipe: data.recipe })) {
@@ -108,6 +114,9 @@ async function addLike(data) {
     return likeStatus
 }
 
+// Function to find recipes: this function posts reipces ingredients to external API
+// and create a new recipe object based on the respond form API
+// sends data back to client
 async function findRecipe(data){
   const Q = data.ingredientsQ.toString().replace(/,/g, ' ');
   console.log("")      
@@ -176,7 +185,7 @@ async function findRecipe(data){
     return JSON.stringify(recipes);
 
 }
-
+// Function to get all the links from DB
 async function getAllLikes() {
     var likes =  await Like.find();
     var likedRecipes = [];
@@ -198,6 +207,7 @@ async function getAllLikes() {
     return likesResult.sort((a, b) => (a.likes < b.likes) ? 1 : -1);
 }
 
+// Function to get recomandations from the API 
 async function getRecomandations(){
       var recipes = [];
     console.log("get recomandations");
@@ -236,7 +246,7 @@ async function getRecomandations(){
   
   }
 
-
+// Function to retrive the analytics form the DB
   async function analytics() {
 
     var curr = isodate(new Date) 

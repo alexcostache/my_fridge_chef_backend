@@ -13,7 +13,6 @@ router.get('/current', getCurrent);
 router.get('/:id', getById);
 router.put('/:id', update);
 router.delete('/:id', _delete);
-//app route
 router.post('/addLike', addLike);
 router.post('/addToFavorites', addToFavorites);
 router.post('/findRecipe', findRecipe);
