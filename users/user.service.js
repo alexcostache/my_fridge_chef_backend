@@ -5,6 +5,8 @@ const db = require('config/db/db');
 const User = db.User;
 const Like = db.Like;
 const Search = db.Search;
+const isodate = require("isodate");
+
 
 const axios = require("axios");
 const { response } = require('express');
@@ -19,6 +21,7 @@ module.exports = {
     findRecipe,
     getAllLikes,
     getRecomandations,
+    analytics,
     delete: _delete
 };
 
@@ -232,3 +235,51 @@ async function getRecomandations(){
       return JSON.stringify(recipes);
   
   }
+
+
+  async function analytics() {
+
+    var curr = isodate(new Date) 
+    var first = curr.getDate() - curr.getDay(); 
+    var last = first + 6; 6
+
+    // get current week range 
+    var weekFirstday = new Date(curr.setDate(first)).toISOString();
+    var weekLastday = new Date(curr.setDate(last)).toISOString();
+
+    // get current month range 
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    var monthFirstDay = new Date(y, m, 1).toISOString();
+    var monthLastDay = new Date(y, m + 1, 0).toISOString();
+
+    var weaklySearches =  await Search.find(
+        { createdDate: {
+            $gte: weekFirstday,
+            $lt: weekLastday
+        }}
+    );
+    var monthlySearches =  await Search.find(
+        { createdDate: {
+            $gte: monthFirstDay,
+            $lt: monthLastDay
+        }}
+    );
+
+    var allSearches =  await Search.find();
+
+
+    var analytics = {
+        "totalSearches":allSearches.length,
+        "weaklySearches":weaklySearches,
+        "weekRange":{"firstDay":weekFirstday,"lastDay":weekLastday},
+        "monthlySearches":monthlySearches,
+        "monthRange":{"firstDay":monthFirstDay,"lastDay":monthLastDay},
+        "allSearches":allSearches
+    }
+
+    // console.log(analytics);
+    
+
+
+    return analytics
+}
