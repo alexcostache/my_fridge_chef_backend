@@ -23,6 +23,7 @@ module.exports = {
     getAllLikes,
     getRecomandations,
     analytics,
+    promoteToAdmin,
     delete: _delete
 };
 
@@ -292,4 +293,27 @@ async function getRecomandations(){
 
 
     return analytics
+}
+
+
+// Function to update userType admin|basic
+async function promoteToAdmin(data) {
+
+    if(data.user.userType == "Admin"){
+        const user = await User.findById(data.userID);
+
+        if(user.userType == "Basic"){
+           user.userType = "Admin"
+        }
+        else if(user.userType == "Admin"){
+            // update it basic 
+            user.userType = "Basic"
+        }
+    
+        await user.save();
+    }else{
+        return {"message":"Access Denied"}
+    }
+
+    
 }

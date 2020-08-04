@@ -16,6 +16,7 @@ router.delete('/:id', _delete);
 router.post('/addLike', addLike);
 router.post('/addToFavorites', addToFavorites);
 router.post('/findRecipe', findRecipe);
+router.post('/promoteToAdmin', promoteToAdmin);
 module.exports = router;
 
 function authenticate(req, res, next) {
@@ -94,4 +95,9 @@ function analytics(req, res, next) {
     userService.analytics()
         .then(analytics => res.json(analytics))
         .catch(err => next(err));
+}
+function promoteToAdmin(req, res, next) {
+    userService.promoteToAdmin(req.body)
+    .then(() => res.json({}))
+    .catch(err => next(err));
 }
